@@ -70,6 +70,210 @@ function displaySequence(sequence, duration, debug, lows, highs, minDuration, ma
     let counts = Array(11).fill(0); // To count occurrences of each number
 
     function displayNumber(number, displayTime, isLast) {
+        display.innerHTML = isLast ? '<div style="font-size: 24pt; color: black; font-weight: bold; text-transform: uppercase;">Final one!</div>' +
+            '<div style="font-size: 200pt; color: ' + getColor(number) + ';">' + number + '</div>' :
+            '<div style="font-size: 200pt; color: ' + getColor(number) + ';">' + number + '</div>';
+
+        let startTime = Date.now();
+        let endTime = startTime + displayTime;
+
+        function updatePieChart() {
+            let now = Date.now();
+            let elapsedTime = now - startTime;
+            let percentage = elapsedTime / displayTime;
+
+            drawPieChart(percentage);
+
+            if (elapsedTime < displayTime) {
+                requestAnimationFrame(updatePieChart);
+            }
+        }
+
+        updatePieChart();
+
+        if (debug) {
+            let regularDisplayTime = displayTime / 0.01; // Since debug mode is 100x faster
+            let roundedDisplayTime = Math.round(regularDisplayTime / 1000); // Round to nearest second
+            debugOutput.innerHTML += `<p>Number ${number}: Would have been displayed for ${roundedDisplayTime} seconds.</p>`;
+        }
+    }
+
+    function displayNextNumber(index) {
+        let isLast = (index === sequence.length - 1); // Check if it's the last number
+        if (index < sequence.length) {
+            let number = sequence[index];
+            let displayTime = getRandomInt(minDuration * 1000, maxDuration * 1000) * (debug ? 0.01 : 1); // 100x faster in debug mode
+            counts[number]++;
+
+            displayNumber(number, displayTime, isLast);
+
+            setTimeout(() => {
+                displayNextNumber(index + 1);
+            }, displayTime);
+        } else {
+            display.textContent = '';
+            canvas.style.display = 'none';
+            callback();
+
+            // Debug output
+            if (debug) {
+                debugOutput.innerHTML += `<p>Sequence: ${sequence.join(', ')}</p>`;
+                debugOutput.innerHTML += `<p>Counts: ${counts.slice(1).join(', ')}</p>`;
+                let lowsCount = counts.slice(1, 4).reduce((a, b) => a + b, 0);
+                let highsCount = counts.slice(8, 11).reduce((a, b) => a + b, 0);
+                debugOutput.innerHTML += `<p>Numbers 1-3: ${lowsCount} (Required: ${lows})</p>`;
+                debugOutput.innerHTML += `<p>Numbers 8-10: ${highsCount} (Required: ${highs})</p>`;
+            }
+        }
+    }
+
+    displayNextNumber(0);
+}
+
+function countdown(callback) {
+    let display = document.getElementById('number-display');
+    let countdownTime = 5;
+    display.textContent = countdownTime;
+    display.style.color = 'black';
+
+    let countdownInterval = setInterval(() => {
+        countdownTime--;
+        display.textContent = countdownTime;
+        if (countdownTime <= 0) {
+            clearInterval(countdownInterval);
+            callback();
+        }
+    }, 1000);
+}
+
+function start() {
+    let lows = parseInt(document.getElementById('lows').value);
+    let highs = parseInt(document.getElementById('highs').value);
+    let duration = parseInt(document.getElementById('duration').value);
+    let minDuration = parseInt(document.getElementById('min-duration').value);
+    let maxDuration = parseInt(document.getElementById('max-duration').value);
+    let debug = document.getElementById('debug').checked;
+    let options = document.getElementById('options');
+
+    let totalNumbers = Math.ceil(duration / 10);
+    let sequence = generateSequence(totalNumbers, lows, highs);
+
+    options.classList.add('hidden');
+    document.getElementById('debug-output').innerHTML = '';
+
+    let speechTopic = getRandomSpeechTopic();
+    document.getElementById('speech-topic').textContent = speechTopic;
+
+    countdown(() => {
+        displaySequence(sequence, duration, debug, lows, highs, minDuration, maxDuration, () => {
+            options.classList.remove('hidden');
+            document.getElementById('speech-topic').textContent = '';
+        });
+    });
+}
+
+function testSequences() {
+    const totalSequences = 100;
+    const lows = parseInt(document.getElementById('lows').value);
+    const highs = parseInt(document.getElementById('highs').value);
+    let validCount = 0;
+
+    for (let i = 0; i < totalSequences; i++) {
+        let totalNumbers = Math.ceil(20 / 10); // Assuming each sequence has 20 numbers (as per initial duration)
+        let sequence = generateSequence(totalNumbers, lows, highs);
+        if (validateSequence(sequence, lows, highs)) {
+            validCount++;
+        }
+    }
+
+    let percentageValid = (validCount / totalSequences) * 100;
+    alert(`Percentage of valid sequences: ${percentageValid.toFixed(2)}%`);
+}
+
+function validateSequence(sequence, lows, highs) {
+    let lowsCount = sequence.filter(num => num <= 3).length;
+    let highsCount = sequence.filter(num => num >= 8).length;
+
+    return lowsCount >= lows && highsCount >= highs;
+}
+
+function updateDurationDisplay() {
+    let minDuration = document.getElementById('min-duration').value;
+    let maxDuration = document.getElementById('max-duration').value;
+    document.getElementById('min-duration-value').textContent = minDuration;
+    document.getElementById('max-duration-value').textContent = maxDuration;
+}function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateSequence(totalNumbers, lows, highs) {
+    let sequence = [];
+    let countLows = 0;
+    let countHighs = 0;
+
+    while (countLows < lows || countHighs < highs) {
+        let number = getRandomInt(1, 10);
+        if (number <= 3 && countLows < lows) {
+            sequence.push(number);
+            countLows++;
+        } else if (number >= 8 && countHighs < highs) {
+            sequence.push(number);
+            countHighs++;
+        }
+    }
+
+    while (sequence.length < totalNumbers) {
+        sequence.push(getRandomInt(1, 10));
+    }
+
+    return sequence.sort(() => Math.random() - 0.5);
+}
+
+function getColor(number) {
+    const gradient = {
+        1: '#add8e6', // Light blue
+        2: '#87ceeb',
+        3: '#00bfff',
+        4: '#00ff7f',
+        5: 'black',    // Black
+        6: '#adff2f',
+        7: 'yellow',
+        8: '#ff8c00',
+        9: '#ff4500',
+        10: '#ff0000' // Bright red
+    };
+    return gradient[number];
+}
+
+function drawPieChart(percentage) {
+    const canvas = document.getElementById('countdown-timer');
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.width / 2;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw background circle
+    ctx.beginPath();
+    ctx.arc(radius, radius, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fill();
+
+    // Draw foreground pie slice
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, -0.5 * Math.PI, (percentage * 2 * Math.PI) - 0.5 * Math.PI, false);
+    ctx.lineTo(radius, radius);
+    ctx.fillStyle = '#add8e6';
+    ctx.fill();
+}
+
+function displaySequence(sequence, duration, debug, lows, highs, minDuration, maxDuration, callback) {
+    let display = document.getElementById('number-display');
+    let canvas = document.getElementById('countdown-timer');
+    let debugOutput = document.getElementById('debug-output');
+    let counts = Array(11).fill(0); // To count occurrences of each number
+
+    function displayNumber(number, displayTime, isLast) {
         if (isLast) {
             display.innerHTML = '<div>Final one!</div>' + number;  // Display "Final one!" above the number
         } else {
@@ -146,7 +350,7 @@ function displayNextNumber(index) {
             }, displayTime);
         } else {
             display.textContent = '';
-            canvas.style.display = 'none';
+            // canvas.style.display = 'none';
             callback();
 
             // Debug output
@@ -197,6 +401,8 @@ function start() {
 
     let speechTopic = getRandomSpeechTopic();
     document.getElementById('speech-topic').textContent = speechTopic;
+
+    // canvas.display.style = 'block'
 
     countdown(() => {
         displaySequence(sequence, duration, debug, lows, highs, minDuration, maxDuration, () => {
