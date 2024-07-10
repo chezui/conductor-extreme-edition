@@ -1,5 +1,6 @@
 body {
     font-family: Arial, sans-serif;
+    font-size: larger
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -22,6 +23,10 @@ body {
     display: block;
     margin: 0 auto;
 }
+
+#options {
+    padding: 50px 50px 50px 50px;
+ }
 
 .hidden {
     display: none;
