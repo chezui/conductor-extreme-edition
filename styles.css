@@ -22,6 +22,7 @@ body {
 #countdown-timer {
     display: block;
     margin: 0 auto;
+    -webkit-text-stroke: 3px black;
 }
 
 #options {
