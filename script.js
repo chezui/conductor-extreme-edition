@@ -69,8 +69,12 @@ function displaySequence(sequence, duration, debug, lows, highs, minDuration, ma
     let debugOutput = document.getElementById('debug-output');
     let counts = Array(11).fill(0); // To count occurrences of each number
 
-    function displayNumber(number, displayTime) {
-        display.textContent = number;
+    function displayNumber(number, displayTime, isLast) {
+        if (isLast) {
+            display.innerHTML = '<div>Final one!</div>' + number;  // Display "Final one!" above the number
+        } else {
+            display.textContent = number;
+        }
         display.style.color = getColor(number);
         canvas.style.display = 'block';
 
@@ -93,17 +97,49 @@ function displaySequence(sequence, duration, debug, lows, highs, minDuration, ma
 
         if (debug) {
             let regularDisplayTime = displayTime / 0.01; // Since debug mode is 100x faster
-            debugOutput.innerHTML += `<p>Number ${number}: Would have been displayed for ${Math.round(regularDisplayTime / 1000)} seconds.</p>`;
+            debugOutput.innerHTML += `<p>Number ${number}: Would have been displayed for ${regularDisplayTime / 1000} seconds.</p>`;
         }
     }
 
-    function displayNextNumber(index) {
+    function displayNumber(number, displayTime, isLast) {
+    if (isLast) {
+        display.innerHTML = '<div style="font-size: 24pt; color: black; font-weight: bold; text-transform: uppercase;">Final one!</div>' + 
+                            '<div style="font-size: 200pt; color: ' + getColor(number) + ';">' + number + '</div>';
+    } else {
+        display.innerHTML = '<div style="font-size: 200pt; color: ' + getColor(number) + ';">' + number + '</div>';
+    }
+
+    let startTime = Date.now();
+    let endTime = startTime + displayTime;
+
+    function updatePieChart() {
+        let now = Date.now();
+        let elapsedTime = now - startTime;
+        let percentage = elapsedTime / displayTime;
+
+        drawPieChart(percentage);
+
+        if (elapsedTime < displayTime) {
+            requestAnimationFrame(updatePieChart);
+        }
+    }
+
+    updatePieChart();
+
+    if (debug) {
+        let regularDisplayTime = displayTime / 0.01; // Since debug mode is 100x faster
+        let roundedDisplayTime = Math.round(regularDisplayTime / 1000); // Round to nearest second
+        debugOutput.innerHTML += `<p>Number ${number}: Would have been displayed for ${roundedDisplayTime} seconds.</p>`;
+    }
+}
+function displayNextNumber(index) {
+        let isLast = (index === sequence.length - 1); // Check if it's the last number
         if (index < sequence.length) {
             let number = sequence[index];
             let displayTime = getRandomInt(minDuration * 1000, maxDuration * 1000) * (debug ? 0.01 : 1); // 100x faster in debug mode
             counts[number]++;
 
-            displayNumber(number, displayTime);
+            displayNumber(number, displayTime, isLast);
 
             setTimeout(() => {
                 displayNextNumber(index + 1);
@@ -596,6 +632,300 @@ function getRandomSpeechTopic() {
         "The best ways to build a strong community",
         "The history of kayaking",
         "The secrets to a successful YouTube channel",
+        // 100 Funny, Off-the-Wall, Random, Intriguing, and Potentially Controversial Topics
+        "If animals could talk, which would be the rudest?",
+        "Why are there interstate highways in Hawaii?",
+        "Is cereal soup? Why or why not?",
+        "What secret conspiracy would you like to start?",
+        "What’s invisible but you wish people could see?",
+        "Is a hotdog a sandwich? Why or why not?",
+        "What’s the weirdest smell you have ever smelled?",
+        "What’s the best Wi-Fi name you’ve seen?",
+        "If life were a video game, what would some of the cheat codes be?",
+        "What’s the most ridiculous fact you know?",
+        "How many chickens would it take to kill an elephant?",
+        "What is the funniest corporate / business screw up you have heard of?",
+        "What would be the worst “buy one get one free” sale of all time?",
+        "If peanut butter wasn’t called peanut butter, what would it be called?",
+        "What sport would be the funniest to add a mandatory amount of alcohol to?",
+        "What would be the creepiest thing you could say while passing a stranger on the street?",
+        "What’s the best type of cheese?",
+        "What are some of the nicknames you have for customers or coworkers?",
+        "If the all the States in the USA were represented by food, what food would each state be represented by?",
+        "What mythical creature would improve the world most if it existed?",
+        "Why can’t we tickle ourselves?",
+        "What part of a kid’s movie completely scarred you?",
+        "What kind of secret society would you like to start?",
+        "If animals could talk, which would be the rudest?",
+        "Toilet paper, over or under?",
+        "What’s the best type of cheese?",
+        "What’s the most imaginative insult you can come up with?",
+        "What used to be considered trashy but now is very classy?",
+        "What’s the weirdest thing a guest has done at your house?",
+        "What’s the most ridiculous fact you know?",
+        "What set of items could you buy that would make the cashier the most uncomfortable?",
+        "What would be the absolute worst name you could give your child?",
+        "What would be the worst thing for the government to make illegal?",
+        "Which body part do you wish you could detach and why?",
+        "What’s the weirdest thing you’ve found lying on the ground / side of the road?",
+        "What’s the weirdest thing you did as a child?",
+        "How do you feel about putting pineapple on pizza?",
+        "What part of a kid’s movie completely scarred you?",
+        "If you were transported 400 years into the past with no clothes or anything else, how would you prove that you were from the future?",
+        "If you were wrongfully put into an insane asylum, how would you convince them that you’re actually sane and not just pretending to be sane?",
+        "What would be the coolest animal to scale up to the size of a horse?",
+        "What two totally normal things become really weird if you do them back to back?",
+        "What set of items could you buy that would make the cashier the most uncomfortable?",
+        "What would the world be like if it was filled with male and female copies of you?",
+        "What is the weirdest thing you have seen in someone else’s home?",
+        "What would be the worst thing for the government to make illegal?",
+        "Which body part do you wish you could detach and why?",
+        "What used to be considered trashy but now is very classy?",
+        "What’s the weirdest thing a guest has done at your house?",
+        "What mythical creature would improve the world most if it existed?",
+        "What would be the absolute worst name you could give your child?",
+        "What would be the coolest animal to scale up to the size of a horse?",
+        "What two totally normal things become really weird if you do them back to back?",
+        "What would the world be like if it was filled with male and female copies of you?",
+        "What is the weirdest thing you have seen in someone else’s home?",
+        "If animals could talk, which would be the rudest?",
+        "Why can’t we tickle ourselves?",
+        "What part of a kid’s movie completely scarred you?",
+        "What kind of secret society would you like to start?",
+        "If animals could talk, which would be the rudest?",
+        "Toilet paper, over or under?",
+        "What’s the best type of cheese?",
+        "What’s the most imaginative insult you can come up with?",
+        "What used to be considered trashy but now is very classy?",
+        "What’s the weirdest thing a guest has done at your house?",
+        "What’s the most ridiculous fact you know?",
+        "What set of items could you buy that would make the cashier the most uncomfortable?",
+        "What would be the absolute worst name you could give your child?",
+        "What would be the worst thing for the government to make illegal?",
+        "Which body part do you wish you could detach and why?",
+        "What’s the weirdest thing you’ve found lying on the ground / side of the road?",
+        "What’s the weirdest thing you did as a child?",
+        "How do you feel about putting pineapple on pizza?",
+        "What part of a kid’s movie completely scarred you?",
+        "If you were transported 400 years into the past with no clothes or anything else, how would you prove that you were from the future?",
+        "If you were wrongfully put into an insane asylum, how would you convince them that you’re actually sane and not just pretending to be sane?",
+        "What would be the coolest animal to scale up to the size of a horse?",
+        "What two totally normal things become really weird if you do them back to back?",
+        "What set of items could you buy that would make the cashier the most uncomfortable?",
+        "What would the world be like if it was filled with male and female copies of you?",
+        "What is the weirdest thing you have seen in someone else’s home?",
+        "What would be the worst thing for the government to make illegal?",
+        "Which body part do you wish you could detach and why?",
+        "What used to be considered trashy but now is very classy?",
+        "What’s the weirdest thing a guest has done at your house?",
+        "What mythical creature would improve the world most if it existed?",
+        "What would be the absolute worst name you could give your child?",
+        "What would be the coolest animal to scale up to the size of a horse?",
+        "What two totally normal things become really weird if you do them back to back?",
+        "What would the world be like if it was filled with male and female copies of you?",
+        "What is the weirdest thing you have seen in someone else’s home?",
+        // 100 Personal, Insightful, Inspiring, Thoughtful Topics
+        "What moment in your life did you feel most alive?",
+        "If you could send a message to the entire world, what would you say in 30 seconds?",
+        "What do you want to be remembered for?",
+        "What does your perfect day look like?",
+        "Who has been the most influential person in your life and why?",
+        "What book or movie profoundly changed your life?",
+        "If you could relive one day from your childhood, which day would it be and why?",
+        "What has been your biggest challenge, and how did you overcome it?",
+        "What is the most valuable lesson you've learned from a failure?",
+        "What does true leadership mean to you?",
+        "What personal qualities do you think are most important for achieving happiness?",
+        "What does success mean to you?",
+        "If you could start over, what would you do differently?",
+        "What is the most courageous thing you've ever done?",
+        "Describe a time when you helped someone else succeed.",
+        "What is your most cherished memory?",
+        "What one thing do you wish people understood about you?",
+        "What legacy do you hope to leave behind?",
+        "What do you think is the key to a good work-life balance?",
+        "How do you handle criticism?",
+        "What's the best piece of advice you've ever received?",
+        "What are you most proud of accomplishing?",
+        "What's the most important thing you've learned in the last year?",
+        "If you had to teach something, what would you teach?",
+        "What makes you feel most empowered?",
+        "Describe a decision you made that was a turning point in your life.",
+        "What do you think the world needs more of right now?",
+        "What are some causes you are passionate about?",
+        "What does being a friend mean to you?",
+        "What has been your biggest surprise in life?",
+        "Where do you find inspiration?",
+        "What do you think are the biggest misconceptions people have about you?",
+        "What kind of legacy do you hope to leave?",
+        "What are you most thankful for?",
+        "What has been the most defining moment in your life?",
+        "What fear would you like to overcome?",
+        "What do you do to recharge?",
+        "What advice would you give your younger self?",
+        "What have you learned from your past relationships?",
+        "How do you define success?",
+        "What is something you've never done but would like to try?",
+        "What are your hopes for the next generation?",
+        "What do you think is the meaning of life?",
+        "What has been your most humbling experience?",
+        "What do you do when you feel overwhelmed?",
+        "What is your approach to problem-solving?",
+        "How do you deal with change?",
+        "What qualities do you admire in others?",
+        "What are your top three priorities in life?",
+        "What is something you believe that most people don't?",
+        "What has been the happiest day of your life so far?",
+        "What do you want to achieve in the next year?",
+        "What has been a significant turning point in your life?",
+        "What values are most important to you?",
+        "What has been your biggest personal change over the last few years?",
+        "What is the best advice you've ever given?",
+        "If you could solve one problem in the world, what would it be?",
+        "What are you most curious about?",
+        "What is the most important lesson you've learned in life?",
+        "What do you hope your future self will remember about this period of your life?",
+        "What does resilience mean to you?",
+        "How do you stay motivated?",
+        "What do you most want to accomplish in your life?",
+        "What does friendship mean to you?",
+        "How do you handle stress and pressure?",
+        "What are your strategies for making big decisions?",
+        "What has been your greatest adventure?",
+        "What is the most important quality you look for in a friend?",
+        "What do you think is your greatest strength?",
+        "What is something you've learned recently that inspired you?",
+        "How do you approach learning something new?",
+        "What is the best part about getting older?",
+        "What are you currently trying to improve about yourself?",
+        "How has your life been different than what you'd imagined?",
+        "How do you want to be remembered?",
+        "What are you most passionate about?",
+        "What do you think about when you're alone in your car?",
+        "What is something you dislike about yourself?",
+        "What are you most afraid of?",
+        "What are you most proud of?",
+        "Where do you see yourself in five years?",
+        "What was the best phase in your life?",
+        "What was the worst phase in your life?",
+        "What's a relationship deal breaker for you?",
+        "If you could go back in time, what would you want to change?",
+        "What are you most grateful for?",
+        "What are the top three things on your bucket list?",
+        "What do you think about when you can't sleep?",
+        "What has compelled you recently to smile?",
+        "If you could have dinner with one person, dead or alive, who would it be?",
+        "What book impacted you the most?",
+        "If you could live anywhere, where would it be?",
+        "What is your biggest regret?",
+        "What do you think your life will look like in 10 years?",
+        "What do you do for fun?",
+        "What was your favorite age growing up?",
+        "What's the one thing you would like to change about yourself?",
+        "Are you religious or spiritual?",
+        "Do you consider yourself an introvert or an extrovert?",
+        "Which parent are you closer to and why?",
+        "What was the best vacation you ever took and why?",
+        "What are your biggest goals for this year?",
+        "How do you feel about sharing your password with your partner?",
+        "When do you think a person is ready for marriage?",
+        "What kind of parent do you think you will be?",
+        "Who is that one person you can talk to about just anything?",
+        "Do you usually stay friends with your exes?",
+        "Have you ever lost someone close to you?",
+        "What is something you are financially saving up for currently?",
+        "When was the last time you cried?",
+        "What is an ideal weekend for you?",
+        "What do you think of best friends of the opposite sex?",
+        "Do you judge a book by its cover?",
+        "Are you confrontational?",
+        "When was the last moment you felt truly at peace?",
+        "What are you most thankful for this year?",
+        "Who in your life has influenced you the most? How did they do it?",
+        "What’s your favorite place in the entire world?",
+        "What are your top five favorite movies?",
+        "What are some of your favorite songs?",
+        "What qualities do you admire about your parents?",
+        "How would you describe your best friend?",
+        "What's your favorite hobby to do alone?",
+        "What is something you look forward to every day?",
+        "How do you unwind after a long day?",
+        "What's the most spontaneous thing you’ve done lately?",
+        "What is your greatest fear?",
+        "What's the best gift you've ever given?",
+        "What's the most beautiful place you've ever been?",
+        "What are your guilty pleasures?",
+        "What is your favorite thing about your career?",
+        "What are you currently reading?",
+        "What’s the most incredible natural venue that you’ve ever seen in person?",
+        "What are your hobbies?",
+        "What are your pet peeves?",
+        "What do you do in your free time?",
+        "What are your top three favorite books and why?",
+        "Who is your favorite author?",
+        "What is your favorite food?",
+        "What is your favorite quote and why?",
+        "What is your favorite word? Why?",
+        "What is your biggest pet peeve?",
+        "What is your favorite time of day? Day of the week? Month of the year?",
+        "What’s the weirdest word in the English language?",
+        "How do you start a conversation?",
+        "What keys on a keyboard do you not use?",
+        "What’s the most interesting thing you can see out of your office or kitchen window?",
+        "On a scale of 1-10, how funny would you say you are?",
+        "Where do you see yourself in 10 years?",
+        "What was your first job?",
+        "If you could join any past or current music group, which would you want to join?",
+        "How many languages do you speak?",
+        "What is your biggest fear or worry?",
+        "What is the funniest thing that has happened to you recently?",
+        "What is your favorite family vacation?",
+        "What would you change about yourself if you could?",
+        "What really makes you angry?",
+        "What motivates you to work hard?",
+        "What is your favorite thing about your career?",
+        "What is your biggest complaint about your job?",
+        "What is your proudest accomplishment?",
+        "What is your child's proudest accomplishment?",
+        "What is your favorite book to read?",
+        "What makes you laugh the most?",
+        "What was the last movie you went to? What did you think?",
+        "What did you want to be when you were small?",
+        "What does your child want to be when he/she grows up?",
+        "If you could choose to do anything for a day, what would it be?",
+        "What is your favorite game or sport to watch and play?",
+        "Would you rather ride a bike, ride a horse, or drive a car?",
+        "What would you sing at Karaoke night?",
+        "What two radio stations do you listen to in the car the most?",
+        "Which would you rather do: wash dishes, mow the lawn, clean the bathroom, or vacuum the house?",
+        "If you could hire someone to help you, would it be with cleaning, cooking, or yard work?",
+        "If you could only eat one meal for the rest of your life, what would it be?",
+        "Who is your favorite author?",
+        "Have you ever had a nickname? What is it?",
+        "Do you like or dislike surprises? Why or why not?",
+        "In the evening, would you rather play a game, visit a relative, watch a movie, or read?",
+        "Would you rather vacation in Hawaii or Alaska, and why?",
+        "Would you rather win the lottery or work at the perfect job? And why?",
+        "Who would you want to be stranded with on a deserted island?",
+        "If money was no object, what would you do all day?",
+        "If you could go back in time, what year would you travel to?",
+        "How would your friends describe you?",
+        "What are your hobbies?",
+        "What is the best gift you have been given?",
+        "What is the worst gift you have received?",
+        "Aside from necessities, what one thing could you not go a day without?",
+        "List two pet peeves.",
+        "Where do you see yourself in five years?",
+        "How many pairs of shoes do you own?",
+        "If you were a super-hero, what powers would you have?",
+        "What would you do if you won the lottery?",
+        "What form of public transportation do you prefer? (air, boat, train, bus, car, etc.)",
+        "What's your favorite zoo animal?",
+        "If you could go back in time to change one thing, what would it be?",
+        "If you could share a meal with any 4 individuals, living or dead, who would they be?",
+        "How many pillows do you sleep with?",
+        "What's the longest you've gone without sleep (and why)?",
+        "What's the tallest building you've been to the top in?",
     ];
     return topics[Math.floor(Math.random() * topics.length)];
 }
