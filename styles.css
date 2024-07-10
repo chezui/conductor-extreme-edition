@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    text-align: center;
+}
+
+#app {
+    text-align: center;
+}
+
+#number-display {
+    font-size: 200pt;
+    margin: 20px;
+}
+
+#countdown-timer {
+    display: block;
+    margin: 0 auto;
+}
+
+.hidden {
+    display: none;
+}
+
+#debug-output {
+    margin-top: 20px;
+    font-size: 14pt;
+}
